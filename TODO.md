@@ -1,0 +1,3 @@
+- Take a look at https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#implement-a-c-api-in-javascript and try to use it for the debug_printf
+- bind the debug_printf va
+- Make the low level functions actually write on screen buffer and intercept the screen buffer on JS and draw from it (like the calc actually does with "not so DMAC screen")

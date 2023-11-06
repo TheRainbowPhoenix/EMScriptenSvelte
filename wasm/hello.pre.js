@@ -10,4 +10,7 @@ var Module = {
   Debug_printf: function (x, y, message) {
     console.log(`[x: ${x}, y: ${y}] "${message}"`);
   },
+  calcInit: function () {
+    console.log("calcInit");
+  },
 };

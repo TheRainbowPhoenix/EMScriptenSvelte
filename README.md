@@ -29,3 +29,9 @@ npm run dev
 ```
 
 Open in your browser : [http://localhost:5173/](http://localhost:5173/)
+
+## Advanced stuff
+
+Interesting part is the "wasm/hello.cpp" file. Take a look at it !
+
+Recommanded to read https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html to understand how the sdk is linked on JS
