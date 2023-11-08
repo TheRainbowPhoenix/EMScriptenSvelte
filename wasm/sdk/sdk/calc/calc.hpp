@@ -13,7 +13,19 @@ extern int height;	//height of the screen
 
 void line(int x1, int y1, int x2, int y2, uint16_t color);
 void triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint16_t colorFill, uint16_t colorLine);
-void fillScreen(uint16_t color);
+void fillScreen(uint16_t color) {
+
+	uint16_t custom_color = color;
+
+	EM_ASM({ // Use EM_ASM_ to execute JavaScript code from C
+		document.dispatchEvent(new CustomEvent("onCall", { detail: {
+            function: "fillScreen",
+            args: {
+                color: $0,
+            }
+        } }));
+    }, custom_color);
+}
 
 inline uint16_t color(uint8_t R, uint8_t G, uint8_t B){
 	return	(((R<<8) & 0b1111100000000000) |

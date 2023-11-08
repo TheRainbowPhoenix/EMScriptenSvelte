@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
   import create_module from "./hello.js";
+  import Editor from "./editor/Editor.svelte";
   let hello: any;
 
   export let message = "";
@@ -8,6 +9,11 @@
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
+
+  let cursors = {
+    x: 0,
+    y: 0,
+  };
 
   onMount(async () => {
     ctx = canvas.getContext("2d");
@@ -45,16 +51,53 @@
     args: { [name: string]: any };
   }
 
+  function toRGB(color: number): string {
+    var R = (color >> 8) & 0xff;
+    var G = (color >> 3) & 0xff;
+    var B = (color & 0x1f) << 3;
+
+    return "rgb(" + R + ", " + G + ", " + B + ")";
+  }
+
   const onCall = (ev: Event) => {
     const details: OnCall = (ev as CustomEvent).detail;
     console.log("onCall:", details.function, " - ", details.args);
 
     if (details.function === "Debug_Printf") {
-      message = details.args.format;
+      message = details.args.output;
 
-      ctx.font = "16px monospace";
       ctx.fillStyle = "white";
-      ctx.fillText(message, details.args.x, details.args.y * 16);
+      ctx.fillRect(
+        details.args.x * 6,
+        details.args.y * 12,
+        message.length * 6,
+        12
+      );
+
+      ctx.font = "12px monospace";
+      ctx.fillStyle = "black";
+      ctx.fillText(message, details.args.x * 6, (details.args.y + 1) * 12 - 2);
+    } else if (details.function === "fillScreen") {
+      const { color } = details.args;
+      console.log("color", color);
+
+      ctx.fillStyle = toRGB(color);
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } else if (details.function === "Debug_PrintString") {
+      message = details.args.string;
+
+      ctx.fillStyle = "white";
+      ctx.fillRect(cursors.x * 12, cursors.y * 24, message.length * 12, 24);
+
+      ctx.font = "24px monospace";
+      ctx.fillStyle = "black";
+      ctx.fillText(message, cursors.x * 12, (cursors.y + 1) * 24 - 4);
+    } else if (details.function === "Debug_SetCursorPosition") {
+      const { x, y } = details.args;
+      cursors = {
+        x,
+        y,
+      };
     }
 
     ev.stopImmediatePropagation();
@@ -73,7 +116,12 @@
   let code = `int main() {
   calcInit(); //backup screen and init some variables
 
+	fillScreen(color(0,64,0));
+
   Debug_Printf(10,1,false,0,"HelloWorld%d",42);
+
+  Debug_SetCursorPosition(13,1);
+	Debug_PrintString("HelloWorld",0);
 
   calcEnd(); //restore screen and do stuff
 
@@ -83,23 +131,27 @@
 
 <div class="container">
   <div class="left">
-    <textarea
+    <Editor bind:code />
+    <!-- <textarea
       name="code"
       id="code"
       cols="30"
       rows="40"
       bind:value={code}
       readonly
-    />
+    /> -->
   </div>
   <div class="right">
-    <span>hello._add(4,5): {count}</span>
-    <p>
+    <!-- <span>hello._add(4,5): {count}</span> -->
+    <!-- <p>
       Debug_Printf:
       <code>{message}</code>
-    </p>
+    </p> -->
 
-    <canvas width="320" height="528" bind:this={canvas} />
+    <div class="cp400">
+      <span class="brand">CP400</span>
+      <canvas width="320" height="528" bind:this={canvas} />
+    </div>
   </div>
 </div>
 
@@ -112,7 +164,9 @@
   .left {
     flex-grow: 1;
     width: 100%;
+    min-height: 100%;
   }
+
   textarea {
     width: 100%;
   }
@@ -125,5 +179,22 @@
     width: 320px;
     height: 528px;
     background-color: black;
+  }
+  .cp400 {
+    padding: 32px 12px;
+    border-radius: 32px / 16px;
+    background-color: #121212;
+    padding-bottom: 64px;
+    position: relative;
+  }
+
+  .cp400 .brand {
+    position: absolute;
+    top: 4px;
+    left: 0;
+    width: 100%;
+    user-select: none;
+    opacity: 0.2;
+    text-align: center;
   }
 </style>

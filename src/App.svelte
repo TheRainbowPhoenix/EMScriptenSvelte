@@ -3,7 +3,5 @@
 </script>
 
 <main>
-  <h1>EMS + Svelte</h1>
-
   <Hello />
 </main>

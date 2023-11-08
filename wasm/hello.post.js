@@ -11,4 +11,5 @@ Module["onRuntimeInitialized"] = function () {
     "number",
     "string",
   ]);
+  Module._main();
 };

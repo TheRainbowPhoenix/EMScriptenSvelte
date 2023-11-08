@@ -36,6 +36,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <emscripten.h>
+#include <stdio.h>
 
 /**
  * Returns the current position of the cursor in debug text mode.
@@ -62,11 +63,27 @@ extern "C"
 void Debug_Printf(int x, int y, bool invert, int zero, const char *format, ...)
  {
     va_list args; // TODO
+    va_start(args, format);
+
+    // Calculate the length of the formatted message.
+    int len = vsnprintf(nullptr, 0, format, args);
+
+    // Allocate a buffer to store the formatted message.
+    char* buffer = new char[len + 1];
+
+    // Format the message into the buffer.
+    vsnprintf(buffer, len + 1, format, args);
+
+    va_end(args);
+
+    EM_ASM({
+        var msg = Module.UTF8ToString($0);
+        console.log(msg);
+    }, buffer);
+    
     // va_start(args, format);
 
     // va_end(args);
-
-
 
     // https://emscripten.org/docs/api_reference/emscripten.h.html#c.MAIN_THREAD_EM_ASM ?
     EM_ASM({ // Use EM_ASM_ to execute JavaScript code from C
@@ -79,11 +96,10 @@ void Debug_Printf(int x, int y, bool invert, int zero, const char *format, ...)
                 y: $1,
                 invert: $2,
                 zero: $3,
-                format: Module.UTF8ToString($4),
-                args: $5
+                output: Module.UTF8ToString($4)
             }
         } }));
-    }, x, y, invert, zero, format, args); // TODO: find how to catch variable args
+    }, x, y, invert, zero, buffer); // TODO: find how to catch variable args
 }
 
 
@@ -138,7 +154,23 @@ void Debug_PrintNumberHex_Word(uint16_t value, int x, int y);
  * @return True if writing the string was successful, false otherwise.
  */
 extern "C"
-bool Debug_PrintString(const char *string, bool invert);
+bool Debug_PrintString(const char *string, bool invert)  {
+
+    const char *ems_string = string;
+    bool ems_invert = invert;
+
+    EM_ASM({ // Use EM_ASM_ to execute JavaScript code from C
+		document.dispatchEvent(new CustomEvent("onCall", { detail: {
+            function: "Debug_PrintString",
+            args: {
+                string: Module.UTF8ToString($0),
+                invert: $1
+            }
+        } }));
+    }, ems_string, ems_invert);
+
+    return true;
+}
 
 /**
  * Sets the position of the cursor in debug text mode.
@@ -147,7 +179,23 @@ bool Debug_PrintString(const char *string, bool invert);
  * @return Always returns 0.
  */
 extern "C"
-int Debug_SetCursorPosition(int x, int y);
+int Debug_SetCursorPosition(int x, int y) {
+
+    int ems_x = x;
+    int ems_y = y;
+
+    EM_ASM({ // Use EM_ASM_ to execute JavaScript code from C
+		document.dispatchEvent(new CustomEvent("onCall", { detail: {
+            function: "Debug_SetCursorPosition",
+            args: {
+                x: $0,
+                y: $1
+            }
+        } }));
+    }, ems_x, ems_y);
+
+    return 0;
+}
 
 /**
  * Waits until a key is pressed, then returns a number representing the key.
