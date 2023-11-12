@@ -25,6 +25,7 @@
  */
 
 #pragma once
+#include <emscripten.h>
 #include <stdint.h>
 
 /**

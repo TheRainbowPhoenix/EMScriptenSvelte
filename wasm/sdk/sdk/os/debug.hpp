@@ -44,7 +44,13 @@
  * @param[out] x,y The position of the cursor.
  */
 extern "C"
-void Debug_GetCursorPosition(int *x, int *y);
+void Debug_GetCursorPosition(int *x, int *y) {
+    EM_ASM({
+        Module.cursor = Module.cursor || {};
+        setValue($0, Module.cursor.x || 0);
+        setValue($1, Module.cursor.y || 0);
+    }, x, y);
+}
 
 /**
  * Print a formatted string in small debug text mode, either in normal
@@ -78,8 +84,15 @@ void Debug_Printf(int x, int y, bool invert, int zero, const char *format, ...)
 
     EM_ASM({
         var msg = Module.UTF8ToString($0);
+        var x = $1;
+        var y = $2;
+        var invert = $3;
+        var zero = 0x0000;
+
+        Module.debug.drawText(msg, x, y, invert, 1);
+            
         console.log(msg);
-    }, buffer);
+    }, buffer, x, y, invert, zero);
     
     // va_start(args, format);
 
@@ -100,6 +113,8 @@ void Debug_Printf(int x, int y, bool invert, int zero, const char *format, ...)
             }
         } }));
     }, x, y, invert, zero, buffer); // TODO: find how to catch variable args
+
+    delete[] buffer;
 }
 
 
@@ -160,6 +175,18 @@ bool Debug_PrintString(const char *string, bool invert)  {
     bool ems_invert = invert;
 
     EM_ASM({ // Use EM_ASM_ to execute JavaScript code from C
+        Module.cursor = Module.cursor || {};
+
+        const msg = Module.UTF8ToString($0);
+        const invert = $1;
+        const x = Module.cursor.x || 0;
+        const y = Module.cursor.y || 0;
+
+        const scale = 2;
+
+        Module.debug.drawText(msg, x, y, invert, scale);
+
+
 		document.dispatchEvent(new CustomEvent("onCall", { detail: {
             function: "Debug_PrintString",
             args: {
@@ -181,18 +208,22 @@ bool Debug_PrintString(const char *string, bool invert)  {
 extern "C"
 int Debug_SetCursorPosition(int x, int y) {
 
-    int ems_x = x;
-    int ems_y = y;
+    EM_ASM({
+        Module.cursor = Module.cursor || {};
+        Module.cursor.x = $0;
+        Module.cursor.y = $1;
+        console.log(Module.cursor);
+    }, x, y);
 
-    EM_ASM({ // Use EM_ASM_ to execute JavaScript code from C
-		document.dispatchEvent(new CustomEvent("onCall", { detail: {
-            function: "Debug_SetCursorPosition",
-            args: {
-                x: $0,
-                y: $1
-            }
-        } }));
-    }, ems_x, ems_y);
+    // EM_ASM({ // Use EM_ASM_ to execute JavaScript code from C
+	// 	document.dispatchEvent(new CustomEvent("onCall", { detail: {
+    //         function: "Debug_SetCursorPosition",
+    //         args: {
+    //             x: $0,
+    //             y: $1
+    //         }
+    //     } }));
+    // }, ems_x, ems_y);
 
     return 0;
 }
