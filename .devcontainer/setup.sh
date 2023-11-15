@@ -6,3 +6,6 @@ cd /workspace/cp_sdk
 sudo chmod 777 .
 mkdir build
 mkdir vscode
+
+pnpm i
+pnpm run build

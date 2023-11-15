@@ -11,9 +11,10 @@
     // Configure properties specific to VS Code.
     "vscode": {
       // Add the IDs of extensions you want installed when the container is created.
-      "extensions": ["analytic-signal.preview-html"]
+      "extensions": ["analytic-signal.preview-html", "ms-vscode.live-server"]
     }
   },
+  "forwardPorts": [5173],
 
   "hostRequirements": {
     "cpus": 4
