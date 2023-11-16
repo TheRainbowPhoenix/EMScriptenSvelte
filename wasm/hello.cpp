@@ -39,7 +39,7 @@ int main() {
 	Debug_Printf(10,1,false,0,"HelloWorld%d",42);
 
 	Debug_SetCursorPosition(13,1);
-	Debug_PrintString("Hello World !",0);
+	Debug_PrintString("Hello Calc",0);
 
 	LCD_Refresh();
 

@@ -21,6 +21,19 @@ cd ..\wasm
 build.bat
 ```
 
+## Quick dev
+
+```
+npm i     # or pnpm i
+npm run watch
+```
+Open "wasm/hello.cpp"
+
+Now go to "dist/preview.html" and right click "Show Preview"
+
+Edit some of the hello.cpp and enjoy !
+
+
 ## Run the project
 
 ```

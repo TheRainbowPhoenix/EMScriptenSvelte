@@ -1,7 +1,13 @@
-call ..\EMScripten\emsdk\emsdk_env.bat
+:: call ..\EMScripten\emsdk\emsdk_env.bat
+
+echo "Building ..." > dist/preview.html
 
 cd wasm
-build-all.bat
+call build-all.bat
 cd ..
 
-pnpm run build
+call pnpm run build
+
+copy /B dist\panel.html dist\preview.html
+
+echo. > dist/.index

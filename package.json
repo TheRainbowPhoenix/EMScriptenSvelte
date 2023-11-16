@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "rebuild": "./rebuild.sh",
-    "watch-file": "node tools/watcher.mjs",
+    "watch": "node tools/watcher.mjs",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
