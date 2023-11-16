@@ -1,10 +1,11 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
-  import create_module from "./hello.js";
-  import Editor from "./editor/Editor.svelte";
+  // import Editor from "./editor/Editor.svelte";
   import { setup } from "./system/setup.js";
+  export let ide = true;
 
   let hello: any;
+  let Editor: any;
 
   export let message = "";
   let count = 0;
@@ -34,18 +35,37 @@
     //     console.log(arguments);
     //   };
 
+    document.addEventListener("jsReady", doReady);
     document.addEventListener("calcInit", onCalcInit);
     document.addEventListener("calcEnd", onCalcEnd);
     document.addEventListener("onCall", onCall);
 
-    hello = await create_module();
-    console.debug("module", hello);
+    // hello = await create_module();
+    // @ts-ignore
+    if (window.hello) {
+      // @ts-ignore
+      hello = window.hello;
+      hello._runMain();
+    }
 
-    hello._runMain();
+    if (ide) {
+      // Editor = (await import('./editor/Editor.svelte')).default;
+    }
+
+    // hello._runMain();
     // console.log(hello.getVRAM);
     // count = hello._add(4, 5);
     // hello.Debug_printf(10, 2, false, 0, "Hello from Svelte (JS wrapper)");
   });
+
+  const doReady = (ev: CustomEvent) => {
+    // @ts-ignore
+    hello = window.hello;
+    // @ts-ignore
+    console.debug("module", window.hello);
+    // @ts-ignore
+    window.hello._runMain();
+  }
 
   onDestroy(() => {
     document.removeEventListener("calcInit", onCalcInit);
@@ -208,8 +228,10 @@
 </script>
 
 <div class="container">
+  {#if ide}
+    
   <div class="left">
-    <Editor bind:code />
+    <!-- <Editor bind:code /> -->
     <!-- <textarea
       name="code"
       id="code"
@@ -219,6 +241,8 @@
       readonly
     /> -->
   </div>
+  
+  {/if}
   <div class="right">
     <!-- <span>hello._add(4,5): {count}</span> -->
     <!-- <p>
@@ -263,7 +287,7 @@
 
   .right {
     margin-left: 2rem;
-    flex-basis: 450px;
+    /* flex-basis: 450px; */
   }
   canvas {
     width: 320px;

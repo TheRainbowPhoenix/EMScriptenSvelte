@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "rebuild": "./rebuild.sh",
+    "watch-file": "node tools/watcher.mjs",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
@@ -19,6 +21,7 @@
     "vite": "^4.4.5"
   },
   "dependencies": {
+    "chokidar": "^3.5.3",
     "monaco-editor": "^0.44.0"
   }
 }

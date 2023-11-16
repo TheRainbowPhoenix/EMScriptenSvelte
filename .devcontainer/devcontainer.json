@@ -16,10 +16,6 @@
   },
   "forwardPorts": [5173],
 
-  "hostRequirements": {
-    "cpus": 4
-  },
-
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/cp_sdk/,type=bind",
   "workspaceFolder": "/workspace/cp_sdk"
 }
